@@ -16,7 +16,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Table(name = "user_task")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Data
-@EqualsAndHashCode(exclude = { "task", "user" })
+@EqualsAndHashCode
 @ToString(exclude = { "task", "user" })
 @NoArgsConstructor
 @AllArgsConstructor
