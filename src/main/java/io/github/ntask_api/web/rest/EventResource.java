@@ -1,13 +1,12 @@
 package io.github.ntask_api.web.rest;
 
+import com.google.type.DateTime;
 import io.github.ntask_api.domain.*;
 import io.github.ntask_api.repository.*;
 import io.github.ntask_api.security.AuthoritiesConstants;
 import io.github.ntask_api.security.SecurityUtils;
-import io.github.ntask_api.service.dto.EventDTO;
-import io.github.ntask_api.service.dto.MessageDTO;
-import io.github.ntask_api.service.dto.TaskDTO;
-import io.github.ntask_api.service.dto.UserDTO;
+import io.github.ntask_api.service.NotificationService;
+import io.github.ntask_api.service.dto.*;
 import io.github.ntask_api.web.rest.errors.BadRequestAlertException;
 import io.github.ntask_api.web.rest.errors.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +46,7 @@ public class EventResource {
     private final TaskRepository taskRepository;
     private final UserEventRepository userEventRepository;
     private final MessageRepository messageRepository;
+    private final NotificationService notificationService;
 
     /**
      * {@code POST  /events} : Create a new eventDto.
@@ -166,11 +166,24 @@ public class EventResource {
                 }
                 if (eventDto.getMembers() != null) {
                     Authority authority = authorityRepository.findById(AuthoritiesConstants.USER_ID).orElseThrow();
+                    Set<Long> userIds = userEventRepository.findAllByEventId(existingEvent.getId()).stream().map(userEvent -> userEvent.getUser().getId()).collect(Collectors.toSet());
                     userEventRepository.deleteAllByEventId(existingEvent.getId());
                     Set<UserEvent> ug = eventDto.getMembers().stream()
                             .map(ud -> new UserEvent(authority, new User(ud.getId()), existingEvent)).collect(Collectors.toSet());
+                    String a = eventDto.getMembers().stream().map(userDTO -> String.valueOf(userDTO.getId())).sorted().collect(Collectors.joining("-"));
+                    String b = userIds.stream().map(String::valueOf).sorted().collect(Collectors.joining("-"));
+                    if (!a.equals(b)){
+                        Notice notice = new Notice();
+                        notice.setContent("Event " + existingEvent.getName() + " updated");
+                        Map<String,String> data = new HashMap<>();
+                        data.put("id", String.valueOf(existingEvent.getId()));
+                        data.put("createdAt", DateTime.getDefaultInstance().toString());
+                        notice.setData(data);
+                        notificationService.sendNotification(notice);
+                    }
                     ug.add(new UserEvent(authorityRepository.findById(AuthoritiesConstants.ADMIN_ID).orElseThrow(),
                             userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().orElseThrow()).orElseThrow(), existingEvent));
+
                     userEventRepository.saveAll(ug);
                 }
 

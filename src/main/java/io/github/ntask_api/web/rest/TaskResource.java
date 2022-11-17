@@ -1,5 +1,6 @@
 package io.github.ntask_api.web.rest;
 
+import com.google.type.DateTime;
 import io.github.ntask_api.domain.Status;
 import io.github.ntask_api.domain.Task;
 import io.github.ntask_api.domain.UserTask;
@@ -7,6 +8,8 @@ import io.github.ntask_api.repository.TaskRepository;
 import io.github.ntask_api.repository.UserRepository;
 import io.github.ntask_api.repository.UserTaskRepository;
 import io.github.ntask_api.security.SecurityUtils;
+import io.github.ntask_api.service.NotificationService;
+import io.github.ntask_api.service.dto.Notice;
 import io.github.ntask_api.service.dto.TaskDTO;
 import io.github.ntask_api.service.dto.UserDTO;
 import io.github.ntask_api.web.rest.errors.BadRequestAlertException;
@@ -24,10 +27,7 @@ import tech.jhipster.web.util.ResponseUtil;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -48,6 +48,7 @@ public class TaskResource {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final UserTaskRepository userTaskRepository;
+    private final NotificationService notificationService;
 
     /**
      * {@code POST  /tasks} : Create a new taskDto.
@@ -110,6 +111,7 @@ public class TaskResource {
             e.setDescription(taskDto.getDescription());
             return e;
         }).map(taskRepository::save).map(TaskDTO::new).orElseThrow(NotFoundException::new);
+
         return ResponseEntity
                 .ok()
                 .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, taskDto.getId().toString()))
@@ -165,7 +167,20 @@ public class TaskResource {
                                 .stream()
                                 .map(u -> new UserTask(null, existingTask, u))
                                 .collect(Collectors.toSet());
+                        String a = taskDto.getAssignees().stream().map(userDTO -> String.valueOf(userDTO.getId())).sorted().collect(Collectors.joining("-"));
+                        String b = userTasks.stream().map(userDTO -> String.valueOf(userDTO.getId())).sorted().collect(Collectors.joining("-"));
+                        if (!a.equals(b)){
+                            Notice notice = new Notice();
+                            notice.setContent("Task " + taskDto.getName() + " updated");
+                            Map<String,String> data = new HashMap<>();
+                            data.put("id", String.valueOf(id));
+                            data.put("createdAt", DateTime.getDefaultInstance().toString());
+                            notice.setData(data);
+                            notificationService.sendNotification(notice);
+                        }
+
                         existingTask.setUserTask(userTasks);
+
                     }
                     if (taskDto.getName() != null) {
                         existingTask.setName(taskDto.getName());

@@ -213,3 +213,6 @@ jhipster:
 app:
   folder:
     location: /data
+
+firebase:
+  googleCredentials: config/cfm/ntask-api-1c08a-firebase-adminsdk-u8ohv-d0def7c761.json
