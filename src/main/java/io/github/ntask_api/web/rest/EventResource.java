@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
@@ -129,7 +130,9 @@ public class EventResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/events/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<EventDTO> partialUpdateEvent(@PathVariable(value = "id", required = false) final Long id, @RequestBody EventDTO eventDto)
+    public ResponseEntity<EventDTO> partialUpdateEvent(@PathVariable(value = "id", required = false) final Long id,
+                                                       @Header(value = "registrationToken") final String registrationToken,
+                                                       @RequestBody EventDTO eventDto)
         throws URISyntaxException {
         log.debug("REST request to partial update Event partially : {}, {}", id, eventDto);
         if (eventDto.getId() == null) {
@@ -175,6 +178,7 @@ public class EventResource {
                     if (!a.equals(b)){
                         Notice notice = new Notice();
                         notice.setContent("Event " + existingEvent.getName() + " updated");
+                        notice.setRegistrationTokens(List.of(registrationToken));
                         Map<String,String> data = new HashMap<>();
                         data.put("id", String.valueOf(existingEvent.getId()));
                         data.put("createdAt", DateTime.getDefaultInstance().toString());

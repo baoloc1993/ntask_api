@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
@@ -130,7 +131,9 @@ public class TaskResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/tasks/{id}", consumes = {"application/json", "application/merge-patch+json"})
-    public ResponseEntity<TaskDTO> partialUpdateTask(@PathVariable(value = "id", required = false) final Long id, @RequestBody TaskDTO taskDto)
+    public ResponseEntity<TaskDTO> partialUpdateTask(@PathVariable(value = "id", required = false) final Long id,
+                                                     @RequestHeader(value = "registrationToken") String registrationToken,
+                                                     @RequestBody TaskDTO taskDto)
             throws URISyntaxException {
         log.debug("REST request to partial update Task partially : {}, {}", id, taskDto);
         if (taskDto.getId() == null) {
@@ -176,6 +179,7 @@ public class TaskResource {
                             data.put("id", String.valueOf(id));
                             data.put("createdAt", DateTime.getDefaultInstance().toString());
                             notice.setData(data);
+                            notice.setRegistrationTokens(List.of(registrationToken));
                             notificationService.sendNotification(notice);
                         }
 
