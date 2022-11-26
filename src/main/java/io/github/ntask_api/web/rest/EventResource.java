@@ -6,6 +6,7 @@ import io.github.ntask_api.repository.*;
 import io.github.ntask_api.security.AuthoritiesConstants;
 import io.github.ntask_api.security.SecurityUtils;
 import io.github.ntask_api.service.NotificationService;
+import io.github.ntask_api.service.UserService;
 import io.github.ntask_api.service.dto.*;
 import io.github.ntask_api.web.rest.errors.BadRequestAlertException;
 import io.github.ntask_api.web.rest.errors.NotFoundException;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
@@ -47,6 +49,8 @@ public class EventResource {
     private final UserEventRepository userEventRepository;
     private final MessageRepository messageRepository;
     private final NotificationService notificationService;
+    private final UserService userService;
+
 
     /**
      * {@code POST  /events} : Create a new eventDto.
@@ -129,7 +133,9 @@ public class EventResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/events/{id}", consumes = { "application/json", "application/merge-patch+json" })
-    public ResponseEntity<EventDTO> partialUpdateEvent(@PathVariable(value = "id", required = false) final Long id, @RequestBody EventDTO eventDto)
+    public ResponseEntity<EventDTO> partialUpdateEvent(@PathVariable(value = "id", required = false) final Long id,
+                                                       @Header(value = "registrationToken") final String registrationToken,
+                                                       @RequestBody EventDTO eventDto)
         throws URISyntaxException {
         log.debug("REST request to partial update Event partially : {}, {}", id, eventDto);
         if (eventDto.getId() == null) {
@@ -175,6 +181,7 @@ public class EventResource {
                     if (!a.equals(b)){
                         Notice notice = new Notice();
                         notice.setContent("Event " + existingEvent.getName() + " updated");
+                        notice.setRegistrationTokens(List.of(registrationToken));
                         Map<String,String> data = new HashMap<>();
                         data.put("id", String.valueOf(existingEvent.getId()));
                         data.put("createdAt", DateTime.getDefaultInstance().toString());
@@ -271,4 +278,34 @@ public class EventResource {
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
+
+
+    @PostMapping("/addMemberToEvent")
+    public UserEvent addMemberToEvent(@RequestParam("id") Long id, @RequestParam("iduser") Long idUser){
+        User user = userRepository.findById(idUser).get();
+        Event event = eventRepository.findById(id).get();
+        UserEvent userEvent = new UserEvent();
+        userEvent.setEvent(event);
+        userEvent.setUser(user);
+        User u = userRepository.findOneByLogin(event.getCreatedBy()).get();
+        Authority authority = authorityRepository.findByName("ROLE_USER").get();
+        userEvent.setRole(authority);
+        userEvent.setCreatedBy(event.getCreatedBy());
+        userEventRepository.save(userEvent);
+        return userEvent;
+    }
+
+    @PostMapping("/deleteMember")
+    public void deleteMember(@RequestParam("id") Long id, @RequestParam("username") String username) throws Exception {
+        User currunUser =userService.getUserWithAuthorities().get();
+        User user = userRepository.findOneByLogin(username).get();
+        Event event = eventRepository.findById(id).get();
+        if(!event.getCreatedBy().equals(currunUser.getLogin())){
+            throw  new Exception("ban khong phai nguoi tao su kien");
+        }
+
+        UserEvent userEvent = userEventRepository.findByEventIdAndUsername(id, username).get(0);
+        userEventRepository.delete(userEvent);
+    }
+
 }

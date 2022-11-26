@@ -31,18 +31,18 @@ management:
       exposure:
         include:
           [
-            'configprops',
-            'env',
-            'health',
-            'info',
-            'jhimetrics',
-            'jhiopenapigroups',
-            'logfile',
-            'loggers',
-            'prometheus',
-            'threaddump',
-            'caches',
-            'liquibase',
+              'configprops',
+              'env',
+              'health',
+              'info',
+              'jhimetrics',
+              'jhiopenapigroups',
+              'logfile',
+              'loggers',
+              'prometheus',
+              'threaddump',
+              'caches',
+              'liquibase',
           ]
   endpoint:
     health:
@@ -215,4 +215,4 @@ app:
     location: /data
 
 firebase:
-  googleCredentials: config/cfm/ntask-api-1c08a-firebase-adminsdk-u8ohv-d0def7c761.json
+  googleCredentials: C:\Users\Username\IdeaProjects\ntask_api\src\main\resources\config\cfm\ntask-api-1c08a-firebase-adminsdk-u8ohv-d0def7c761.json

@@ -15,6 +15,7 @@ public interface UserEventRepository extends JpaRepository<UserEvent, Long> {
     @Query("select e from UserEvent e where e.event.id = ?1 and e.user.login = ?2")
     List<UserEvent> findByEventIdAndUsername(Long id, String username);
 
+
     int deleteAllByEventId(Long id);
     List<UserEvent> findAllByEventId(Long id);
 }
