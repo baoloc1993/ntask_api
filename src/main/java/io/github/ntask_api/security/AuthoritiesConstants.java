@@ -9,9 +9,9 @@ public final class AuthoritiesConstants {
 
     public static final String USER = "ROLE_USER";
 
-    public static final Long ADMIN_ID = 2L;
+    public static final Long ADMIN_ID = 1L;
 
-    public static final Long USER_ID = 1L;
+    public static final Long USER_ID = 2L;
 
     public static final String ANONYMOUS = "ROLE_ANONYMOUS";
 
