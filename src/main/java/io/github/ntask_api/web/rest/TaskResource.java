@@ -175,6 +175,7 @@ public class TaskResource {
                         if (!a.equals(b)){
                             Notice notice = new Notice();
                             notice.setContent("Task " + taskDto.getName() + " updated");
+                            notice.setSubject("Task " + taskDto.getName() + " updated");
                             Map<String,String> data = new HashMap<>();
                             data.put("id", String.valueOf(id));
                             data.put("createdAt", DateTime.getDefaultInstance().toString());

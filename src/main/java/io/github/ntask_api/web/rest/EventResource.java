@@ -178,6 +178,7 @@ public class EventResource {
                     if (!a.equals(b)){
                         Notice notice = new Notice();
                         notice.setContent("Event " + existingEvent.getName() + " updated");
+                        notice.setSubject("Event " + existingEvent.getName() + " updated");
                         notice.setRegistrationTokens(List.of(registrationToken));
                         Map<String,String> data = new HashMap<>();
                         data.put("id", String.valueOf(existingEvent.getId()));
