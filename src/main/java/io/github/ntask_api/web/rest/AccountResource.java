@@ -203,4 +203,20 @@ public class AccountResource {
             password.length() > ManagedUserVM.PASSWORD_MAX_LENGTH
         );
     }
+
+    @PostMapping("/user/updateProfile")
+    public User updateUserByUser(@RequestBody User user) throws Exception {
+        User user1 = userService.getUserWithAuthorities().get();
+        User user2 = userRepository.findById(user.getId()).get();
+        user2.setName(user.getName());
+        user2.setAvatarUrl(user.getAvatarUrl());
+        if(user.getId() != user1.getId()){
+            throw new Exception("khong du quyen");
+        }
+        else{
+            userRepository.save(user2);
+        }
+
+        return user;
+    }
 }
