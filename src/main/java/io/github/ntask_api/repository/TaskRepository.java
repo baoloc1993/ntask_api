@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /**
  * Spring Data JPA repository for the Task entity.
  */
@@ -19,5 +21,11 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Query("SELECT DISTINCT t FROM UserTask ut JOIN ut.task t join ut.user u JOIN t.event e WHERE e.id = ?1 AND u.login = ?2")
     Page<Task> findAllBy(Long eid, String username, Pageable pa);
+
+    @Query("SELECT DISTINCT t FROM Task t inner  join t.event e where e.id = ?1")
+    Page<Task> findByEventId(Long eventId, Pageable pageable);
+
+    @Query("SELECT DISTINCT t FROM Task t inner  join t.event e where e.id = ?1")
+    List<Task> findByEventListId(Long eventId);
 
 }

@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.github.ntask_api.service.dto.EventDTO;
 import io.github.ntask_api.service.dto.UserDTO;
 import lombok.Data;
@@ -20,7 +21,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
  */
 @Entity
 @Table(name = "event")
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+//@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Data
 @EqualsAndHashCode(exclude = { "userEvents", "startAt", "endAt", "status", "tasks" })
 @ToString(exclude = { "userEvents", "startAt", "endAt", "status", "tasks" })
