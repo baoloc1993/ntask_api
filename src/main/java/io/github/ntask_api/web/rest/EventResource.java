@@ -24,6 +24,7 @@ import tech.jhipster.web.util.ResponseUtil;
 import org.springframework.security.core.context.SecurityContextHolder;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,6 +51,9 @@ public class EventResource {
     private final MessageRepository messageRepository;
     private final NotificationService notificationService;
     private final UserService userService;
+    private final NotificationEventRepository notificationEventRepository;
+    private final NotificationTaskRepository notificationTaskRepository;
+
 
 
     /**
@@ -78,6 +82,18 @@ public class EventResource {
             ug.addAll(as);
         }
         userEventRepository.saveAll(ug);
+
+        NotificationEvent notificationEvent = new NotificationEvent();
+        User user = userService.getUserWithAuthorities().get();
+        notificationEvent.setCreatedDate(new Timestamp(System.currentTimeMillis()));
+        notificationEvent.setReaded(false);
+        notificationEvent.setDeleted(false);
+        notificationEvent.setUser(user);
+        notificationEvent.setType(4);
+        notificationEvent.setContent("Tạo event: "+entity.getName()+" thành công");
+        notificationEvent.setEvent(entity);
+        notificationEventRepository.save(notificationEvent);
+
 
         return ResponseEntity
             .created(new URI("/api/events/" + result.getId()))
@@ -181,6 +197,7 @@ public class EventResource {
                     if (!a.equals(b)){
                         Notice notice = new Notice();
                         notice.setContent("Event " + existingEvent.getName() + " updated");
+                        notice.setSubject("Event " + existingEvent.getName() + " updated");
                         notice.setRegistrationTokens(List.of(registrationToken));
                         Map<String,String> data = new HashMap<>();
                         data.put("id", String.valueOf(existingEvent.getId()));
@@ -197,6 +214,19 @@ public class EventResource {
                 return existingEvent;
             })
             .map(eventRepository::saveAndFlush).flatMap(e -> eventRepository.findById(eventDto.getId())).map(EventDTO::new);
+
+        Event event = eventRepository.findById(eventDto.getId()).get();
+        NotificationEvent notificationEvent = new NotificationEvent();
+        User user = userService.getUserWithAuthorities().get();
+        notificationEvent.setCreatedDate(new Timestamp(System.currentTimeMillis()));
+        notificationEvent.setReaded(false);
+        notificationEvent.setDeleted(false);
+        notificationEvent.setUser(user);
+        notificationEvent.setType(5);
+        notificationEvent.setContent("Cập nhật event: "+event.getName()+" thành công");
+        notificationEvent.setEvent(event);
+        notificationEventRepository.save(notificationEvent);
+
 
         return ResponseUtil.wrapOrNotFound(
             result,
@@ -225,6 +255,10 @@ public class EventResource {
     public ResponseEntity<EventDTO> getEvent(@PathVariable Long id) {
         log.debug("REST request to get Event : {}", id);
         Optional<EventDTO> eventDto = eventRepository.findById(id).map(EventDTO::new);
+        for(Long e : eventDto.get().getTask()){
+            Task t = taskRepository.findById(e).get();
+            eventDto.get().getTasks().add(new TaskDTO(t));
+        }
         return ResponseUtil.wrapOrNotFound(eventDto);
     }
 
@@ -272,6 +306,36 @@ public class EventResource {
     @DeleteMapping("/events/{id}")
     public ResponseEntity<Void> deleteEvent(@PathVariable Long id) {
         log.debug("REST request to delete Event : {}", id);
+
+        List<NotificationEvent> list = notificationEventRepository.findByEventId(id);
+        System.out.printf("=====> size"+list.size());
+        Event event = eventRepository.findById(id).get();
+        for(NotificationEvent e : list){
+            e.setEvent(null);
+            e.setDeleted(true);
+            notificationEventRepository.save(e);
+        }
+
+        NotificationEvent notificationEvent = new NotificationEvent();
+        User user = userService.getUserWithAuthorities().get();
+        notificationEvent.setCreatedDate(new Timestamp(System.currentTimeMillis()));
+        notificationEvent.setReaded(false);
+        notificationEvent.setDeleted(true);
+        notificationEvent.setUser(user);
+        notificationEvent.setType(6);
+        notificationEvent.setContent("Xóa event: "+event.getName()+" thành công");
+        notificationEvent.setEvent(null);
+        notificationEventRepository.save(notificationEvent);
+
+        for(Task t : taskRepository.findByEventListId(id)){
+            for(NotificationTask n : notificationTaskRepository.findByTaskId(t.getId())){
+                n.setTask(null);
+                n.setDeleted(true);
+                notificationTaskRepository.save(n);
+            }
+        }
+
+
         eventRepository.deleteById(id);
         return ResponseEntity
             .noContent()
@@ -308,4 +372,23 @@ public class EventResource {
         userEventRepository.delete(userEvent);
     }
 
+    @GetMapping("/notificationEvent/findByUser")
+    public Page<NotificationEvent> findByEvent(Pageable pageable){
+        return notificationEventRepository.findByUserId(userService.getUserWithAuthorities().get().getId(), pageable);
+    }
+
+    @GetMapping("/notificationEvent/readAll")
+    public void updateReadNotification(){
+        User user = userService.getUserWithAuthorities().get();
+        for(NotificationEvent n : notificationEventRepository.findListByUserId(user.getId())){
+            n.setReaded(true);
+            notificationEventRepository.save(n);
+        }
+    }
+
+    @GetMapping("/notificationEvent/notRead")
+    public Long getNotificationNotRead(){
+        User user = userService.getUserWithAuthorities().get();
+        return notificationEventRepository.countNotificationNotRead(user.getId(), false);
+    }
 }

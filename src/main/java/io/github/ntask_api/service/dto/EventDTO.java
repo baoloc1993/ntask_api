@@ -5,10 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.ZonedDateTime;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -34,9 +31,11 @@ public class EventDTO {
 
     private String exp;
 
-    private Set<Long> tasks;
+    private Set<Long> task;
 
     private Set<UserDTO> members;
+
+    private Set<TaskDTO> tasks;
 
     public EventDTO(Event e) {
         id = e.getId();
@@ -46,9 +45,10 @@ public class EventDTO {
         endAt = e.getEndAt();
         status = e.getStatus().toString();
         exp = e.getExp();
-        tasks = Optional.ofNullable(e.getTasks()).orElseGet(Collections::emptySet).stream().map(Task::getId).collect(Collectors.toSet());
+        task = Optional.ofNullable(e.getTasks()).orElseGet(Collections::emptySet).stream().map(Task::getId).collect(Collectors.toSet());
         Map<User, Authority> ua = Optional.ofNullable(e.getUserEvents()).orElseGet(Collections::emptySet).stream().collect(Collectors.toMap(UserEvent::getUser, UserEvent::getRole, (a, b) -> b));
         members = ua.entrySet().stream().map(et -> new UserDTO(et.getKey(), et.getValue())).collect(Collectors.toSet());
+        tasks = new HashSet<>();
     }
 
 }

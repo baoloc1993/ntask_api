@@ -5,6 +5,7 @@ import java.time.ZonedDateTime;
 import java.util.Set;
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.github.ntask_api.service.dto.TaskDTO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,13 +13,14 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ColumnDefault;
 
 /**
  * A Task.
  */
 @Entity
 @Table(name = "t_task")
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+//@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Data
 @EqualsAndHashCode(exclude = { "startAt", "endAt", "event", "userTask" })
 @ToString(exclude = { "startAt", "endAt", "event", "userTask" })
@@ -42,11 +44,15 @@ public class Task extends AbstractAuditingEntity<Long> implements Serializable {
 
     private String name;
 
+    @ColumnDefault("0")
+    private Boolean isShow;
+
     @ManyToOne
     private Event event;
 
     @OneToMany(orphanRemoval = true, mappedBy = "task", cascade = CascadeType.ALL)
     private Set<UserTask> userTask;
+
 
     private Status status;
 

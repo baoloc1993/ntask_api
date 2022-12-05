@@ -24,7 +24,7 @@ public class FirebaseConfig {
                 .builder()
                 .setCredentials(googleCredentials)
                 .build();
-        FirebaseApp app = FirebaseApp.initializeApp(firebaseOptions, "ntask-api");
+        FirebaseApp app = FirebaseApp.initializeApp(firebaseOptions, "event-management");
         return FirebaseMessaging.getInstance(app);
     }
 }

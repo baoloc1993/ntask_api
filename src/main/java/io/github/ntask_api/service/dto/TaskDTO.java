@@ -34,6 +34,8 @@ public class TaskDTO {
 
     private String status;
 
+    private Boolean isShow;
+
     private Set<UserDTO> assignees;
 
     public TaskDTO(Task t) {
@@ -44,6 +46,7 @@ public class TaskDTO {
         description = t.getDescription();
         event = t.getEvent().getId();
         status = t.getStatus().toString();
+        isShow = t.getIsShow();
         assignees = Optional.ofNullable(t.getUserTask()).orElseGet(Collections::emptySet).stream().map(UserTask::getUser).map(UserDTO::new).collect(Collectors.toSet());
     }
 
