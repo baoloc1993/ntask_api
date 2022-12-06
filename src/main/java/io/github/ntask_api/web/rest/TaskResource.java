@@ -1,14 +1,14 @@
 package io.github.ntask_api.web.rest;
 
 import com.google.type.DateTime;
-import io.github.ntask_api.domain.Status;
-import io.github.ntask_api.domain.Task;
-import io.github.ntask_api.domain.UserTask;
+import io.github.ntask_api.domain.*;
+import io.github.ntask_api.repository.NotificationTaskRepository;
 import io.github.ntask_api.repository.TaskRepository;
 import io.github.ntask_api.repository.UserRepository;
 import io.github.ntask_api.repository.UserTaskRepository;
 import io.github.ntask_api.security.SecurityUtils;
 import io.github.ntask_api.service.NotificationService;
+import io.github.ntask_api.service.UserService;
 import io.github.ntask_api.service.dto.Notice;
 import io.github.ntask_api.service.dto.TaskDTO;
 import io.github.ntask_api.service.dto.UserDTO;
@@ -28,6 +28,7 @@ import tech.jhipster.web.util.ResponseUtil;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.Timestamp;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,6 +51,8 @@ public class TaskResource {
     private final UserRepository userRepository;
     private final UserTaskRepository userTaskRepository;
     private final NotificationService notificationService;
+    private final NotificationTaskRepository notificationTaskRepository;
+    private final UserService userService;
 
     /**
      * {@code POST  /tasks} : Create a new taskDto.
@@ -75,6 +78,20 @@ public class TaskResource {
         userTaskRepository.saveAll(userTasks);
 
         TaskDTO result = new TaskDTO(taskRepository.save(entity));
+
+
+        NotificationTask notificationTask = new NotificationTask();
+        User user = userService.getUserWithAuthorities().get();
+        notificationTask.setCreatedDate(new Timestamp(System.currentTimeMillis()));
+        notificationTask.setReaded(false);
+        notificationTask.setDeleted(false);
+        notificationTask.setUser(user);
+        notificationTask.setType(1);
+        notificationTask.setContent("Tạo task: "+entity.getName()+" thành công");
+        notificationTask.setTask(entity);
+        notificationTaskRepository.save(notificationTask);
+
+
         return ResponseEntity
                 .created(new URI("/api/tasks/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
@@ -112,6 +129,9 @@ public class TaskResource {
             e.setDescription(taskDto.getDescription());
             return e;
         }).map(taskRepository::save).map(TaskDTO::new).orElseThrow(NotFoundException::new);
+
+
+
 
         return ResponseEntity
                 .ok()
@@ -197,7 +217,15 @@ public class TaskResource {
                     return existingTask;
                 })
                 .map(taskRepository::save).map(TaskDTO::new);
-
+        NotificationTask notificationTask = new NotificationTask();
+        notificationTask.setTask(taskRepository.findById(taskDto.getId()).get());
+        notificationTask.setContent("Cập nhật task: "+taskDto.getName()+" thành công");
+        notificationTask.setDeleted(false);
+        notificationTask.setType(2);
+        notificationTask.setCreatedDate(new Timestamp(System.currentTimeMillis()));
+        notificationTask.setReaded(false);
+        notificationTask.setUser(userService.getUserWithAuthorities().get());
+        notificationTaskRepository.save(notificationTask);
         return ResponseUtil.wrapOrNotFound(
                 result,
                 HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, taskDto.getId().toString())
@@ -237,10 +265,54 @@ public class TaskResource {
     @DeleteMapping("/tasks/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         log.debug("REST request to delete Task : {}", id);
+
+
+        List<NotificationTask> list = notificationTaskRepository.findByTaskId(id);
+        Task task = taskRepository.findById(id).get();
+        for(NotificationTask n : list){
+            n.setTask(null);
+            n.setDeleted(true);
+            notificationTaskRepository.save(n);
+        }
+        NotificationTask notificationTask = new NotificationTask();
+        notificationTask.setTask(null);
+        notificationTask.setContent("Xóa task: "+task.getName()+" thành công");
+        notificationTask.setDeleted(true);
+        notificationTask.setType(3);
+        notificationTask.setCreatedDate(new Timestamp(System.currentTimeMillis()));
+        notificationTask.setReaded(false);
+        notificationTask.setUser(userService.getUserWithAuthorities().get());
+        notificationTaskRepository.save(notificationTask);
+
         taskRepository.deleteById(id);
         return ResponseEntity
                 .noContent()
                 .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
                 .build();
+    }
+
+    @GetMapping("/task/findByEvent")
+    public Page<TaskDTO> findByEvent(Pageable pageable,@RequestParam("id") Long id){
+        return taskRepository.findByEventId(id,pageable).map(TaskDTO::new);
+    }
+
+    @GetMapping("/notificationTask/findByUser")
+    public Page<NotificationTask> findByEvent(Pageable pageable){
+        return notificationTaskRepository.findByUserId(userService.getUserWithAuthorities().get().getId(), pageable);
+    }
+
+    @GetMapping("/notificationTask/readAll")
+    public void updateReadNotification(){
+        User user = userService.getUserWithAuthorities().get();
+        for(NotificationTask n : notificationTaskRepository.findListByUserId(user.getId())){
+            n.setReaded(true);
+            notificationTaskRepository.save(n);
+        }
+    }
+
+    @GetMapping("/notificationTask/notRead")
+    public Long getNotificationNotRead(){
+        User user = userService.getUserWithAuthorities().get();
+        return notificationTaskRepository.countNotificationNotRead(user.getId(), false);
     }
 }
