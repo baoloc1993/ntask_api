@@ -48,6 +48,7 @@ public class ChatController {
         notice.setSubject(chatDTO.getTitle());
         Map<String,String> data = new HashMap<>();
         data.put("createdAt", DateTime.getDefaultInstance().toString());
+        data.put("type", "4");
         notice.setData(data);
         notice.setRegistrationTokens(users.stream().map(User::getNotificationKey).collect(Collectors.toList()));
         notificationService.sendNotification(notice);

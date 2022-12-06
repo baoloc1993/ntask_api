@@ -361,6 +361,7 @@ public class EventResource {
         notice.getRegistrationTokens().add(user.getNotificationKey());
         Map<String,String> data = new HashMap<>();
         data.put("id", String.valueOf(event.getId()));
+        data.put("type", "1");
         data.put("createdAt", DateTime.getDefaultInstance().toString());
         notice.setData(data);
         notificationService.sendNotification(notice);
@@ -383,6 +384,7 @@ public class EventResource {
         notice.getRegistrationTokens().add(user.getNotificationKey());
         Map<String,String> data = new HashMap<>();
         data.put("id", String.valueOf(event.getId()));
+        data.put("type", "2");
         data.put("createdAt", DateTime.getDefaultInstance().toString());
         notice.setData(data);
         notificationService.sendNotification(notice);
