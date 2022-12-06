@@ -2,12 +2,16 @@ package io.github.ntask_api.web.rest;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.github.ntask_api.domain.Authority;
+import io.github.ntask_api.domain.User;
+import io.github.ntask_api.repository.UserRepository;
 import io.github.ntask_api.security.DomainUserDetailsService;
 import io.github.ntask_api.security.jwt.JWTFilter;
 import io.github.ntask_api.security.jwt.TokenProvider;
 import io.github.ntask_api.service.dto.UserDTO;
 import io.github.ntask_api.web.rest.vm.LoginVM;
 import javax.validation.Valid;
+
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,19 +28,18 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/api")
+@AllArgsConstructor
 public class UserJWTController {
 
     private final TokenProvider tokenProvider;
+    private final UserRepository userRepository;
 
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
-    public UserJWTController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder) {
-        this.tokenProvider = tokenProvider;
-        this.authenticationManagerBuilder = authenticationManagerBuilder;
-    }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginVM loginVM) {
+    public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginVM loginVM,
+                                              @RequestHeader(value = "registrationToken") String registrationToken) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
             loginVM.getUsername(),
             loginVM.getPassword()
@@ -47,6 +50,11 @@ public class UserJWTController {
         String jwt = tokenProvider.createToken(authentication, loginVM.isRememberMe());
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
+        User user = userRepository.findOneWithAuthoritiesByLogin(loginVM.getUsername()).orElse(null);
+        if (user != null){
+            user.setNotificationKey(registrationToken);
+            userRepository.save(user);
+        }
         return new ResponseEntity<>(new JWTToken(jwt, (DomainUserDetailsService.CustomUser) authentication.getPrincipal()), httpHeaders, HttpStatus.OK);
     }
 

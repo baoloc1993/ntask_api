@@ -53,6 +53,9 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
     @Column(name = "name", length = 50)
     private String name;
 
+    @Column(name = "notification_key")
+    private String notificationKey;
+
     @Email
     @Size(min = 5, max = 254)
     @Column(length = 254, unique = true)
@@ -100,6 +103,8 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @BatchSize(size = 20)
     private Set<Event> bookmarkEvents = new HashSet<>();
+
+
 
     public User(Long id) {
         this.id = id;

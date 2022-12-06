@@ -174,13 +174,13 @@ public class TaskResource {
                         String b = userTasks.stream().map(userDTO -> String.valueOf(userDTO.getId())).sorted().collect(Collectors.joining("-"));
                         if (!a.equals(b)){
                             Notice notice = new Notice();
-                            notice.setContent("Task " + taskDto.getName() + " updated");
+                            notice.setContent("Bạn vừa được giao việc " + taskDto.getName());
                             notice.setSubject("Task " + taskDto.getName() + " updated");
                             Map<String,String> data = new HashMap<>();
                             data.put("id", String.valueOf(id));
                             data.put("createdAt", DateTime.getDefaultInstance().toString());
                             notice.setData(data);
-                            notice.setRegistrationTokens(List.of(registrationToken));
+                            notice.setRegistrationTokens(userTasks.stream().map(userTask -> userTask.getUser().getNotificationKey()).collect(Collectors.toList()));
                             notificationService.sendNotification(notice);
                         }
 

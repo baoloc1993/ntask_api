@@ -293,6 +293,14 @@ public class EventResource {
         userEvent.setRole(authority);
         userEvent.setCreatedBy(event.getCreatedBy());
         userEventRepository.save(userEvent);
+        Notice notice = new Notice();
+        notice.setContent("Bạn được thêm vào sự kiện " + event.getName());
+        notice.getRegistrationTokens().add(u.getNotificationKey());
+        Map<String,String> data = new HashMap<>();
+        data.put("id", String.valueOf(event.getId()));
+        data.put("createdAt", DateTime.getDefaultInstance().toString());
+        notice.setData(data);
+        notificationService.sendNotification(notice);
         return userEvent;
     }
 
@@ -307,6 +315,14 @@ public class EventResource {
 
         UserEvent userEvent = userEventRepository.findByEventIdAndUsername(id, username).get(0);
         userEventRepository.delete(userEvent);
+        Notice notice = new Notice();
+        notice.setContent("Bạn bị xóa ra khỏi sự kiện " + event.getName());
+        notice.getRegistrationTokens().add(user.getNotificationKey());
+        Map<String,String> data = new HashMap<>();
+        data.put("id", String.valueOf(event.getId()));
+        data.put("createdAt", DateTime.getDefaultInstance().toString());
+        notice.setData(data);
+        notificationService.sendNotification(notice);
     }
 
 }
