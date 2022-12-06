@@ -42,7 +42,7 @@ public class ChatController {
 
     @PostMapping("/chat")
     public ResponseEntity createUserTask(@RequestBody ChatDTO chatDTO) {
-        Set<User> users = new HashSet<>(userRepository.findAllById(chatDTO.getReceivers().stream().map(UserDTO::getId).collect(Collectors.toList())));
+        Set<User> users = new HashSet<>(userRepository.findAllById(chatDTO.getReceivers()));
         Notice notice = new Notice();
         notice.setContent(chatDTO.getDescription());
         notice.setSubject(chatDTO.getTitle());
