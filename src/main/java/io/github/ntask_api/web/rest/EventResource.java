@@ -358,7 +358,7 @@ public class EventResource {
         userEventRepository.save(userEvent);
         Notice notice = new Notice();
         notice.setContent("Bạn được thêm vào sự kiện " + event.getName());
-        notice.getRegistrationTokens().add(u.getNotificationKey());
+        notice.getRegistrationTokens().add(user.getNotificationKey());
         Map<String,String> data = new HashMap<>();
         data.put("id", String.valueOf(event.getId()));
         data.put("createdAt", DateTime.getDefaultInstance().toString());
