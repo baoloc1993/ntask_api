@@ -1,15 +1,23 @@
 package io.github.ntask_api.web.ws;
 
+import com.google.type.DateTime;
 import io.github.ntask_api.domain.Message;
+import io.github.ntask_api.domain.User;
 import io.github.ntask_api.repository.MessageRepository;
-import io.github.ntask_api.service.dto.MessageDTO;
+import io.github.ntask_api.repository.UserRepository;
+import io.github.ntask_api.service.NotificationService;
+import io.github.ntask_api.service.dto.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,6 +25,8 @@ public class ChatController {
 
     private final SimpMessageSendingOperations messagingTemplate;
     private final MessageRepository repository;
+    private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     @MessageMapping("/chat.sendMessage")
     public MessageDTO sendMessage(@Payload MessageDTO chatMessage) {
@@ -28,6 +38,20 @@ public class ChatController {
         messagingTemplate.convertAndSend("/topic/" + chatMessage.getRoom(), saved);
 
         return saved;
+    }
+
+    @PostMapping("/chat")
+    public ResponseEntity createUserTask(@RequestBody ChatDTO chatDTO) {
+        Set<User> users = new HashSet<>(userRepository.findAllById(chatDTO.getReceivers().stream().map(UserDTO::getId).collect(Collectors.toList())));
+        Notice notice = new Notice();
+        notice.setContent(chatDTO.getDescription());
+        notice.setSubject(chatDTO.getTitle());
+        Map<String,String> data = new HashMap<>();
+        data.put("createdAt", DateTime.getDefaultInstance().toString());
+        notice.setData(data);
+        notice.setRegistrationTokens(users.stream().map(User::getNotificationKey).collect(Collectors.toList()));
+        notificationService.sendNotification(notice);
+        return ResponseEntity.ok().build();
     }
 
 }
