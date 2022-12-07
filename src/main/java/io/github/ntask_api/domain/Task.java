@@ -63,6 +63,7 @@ public class Task extends AbstractAuditingEntity<Long> implements Serializable {
         name = taskDto.getName();
         status = Status.CREATED;
         event = new Event(taskDto.getEvent());
+        isShow= taskDto.getIsShow();
     }
 
     public Task(Long id) {
