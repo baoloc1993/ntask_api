@@ -16,10 +16,10 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     Page<Task> findAllByEventId(Long id, Pageable pa);
 
-    @Query("SELECT DISTINCT t FROM UserTask ut JOIN ut.task t JOIN ut.user u JOIN t.event e WHERE u.id = ?1 AND e.id = ?2")
+    @Query("SELECT DISTINCT t FROM Task t JOIN t.userTask ut JOIN ut.user u JOIN t.event e WHERE u.id = ?1 AND e.id = ?2")
     Page<Task> findAllBy(Long uid, Long eid, Pageable pageable);
 
-    @Query("SELECT DISTINCT t FROM UserTask ut JOIN ut.task t join ut.user u JOIN t.event e WHERE e.id = ?1 AND u.login = ?2")
+    @Query("SELECT DISTINCT t FROM Task t JOIN t.userTask ut join ut.user u JOIN t.event e WHERE e.id = ?1 AND u.login = ?2")
     Page<Task> findAllBy(Long eid, String username, Pageable pa);
 
     @Query("SELECT DISTINCT t FROM Task t inner  join t.event e where e.id = ?1")
