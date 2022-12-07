@@ -20,6 +20,7 @@ public class ChatDTO {
 
     private String description;
     private String title;
+    private String eventId;
     private Set<Long> receivers;
 
 }
