@@ -69,7 +69,10 @@ public class EventResource {
         if (eventDto.getId() != null) {
             throw new BadRequestAlertException("A new eventDto cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Event entity = eventRepository.save(new Event(eventDto));
+        Event event = new Event(eventDto);
+        List<Task> tasks = taskRepository.findAllByIdIn(eventDto.getTask());
+        event.setTasks(tasks);
+        Event entity = eventRepository.save(event);
         EventDTO result = new EventDTO(entity);
 
         Set<UserEvent> ug = new HashSet<>();
@@ -85,9 +88,8 @@ public class EventResource {
             ug.addAll(as);
         }
         userEventRepository.saveAll(ug);
-        List<Task> tasks = taskRepository.findAllByIdIn(result.getTask());
-        List<TaskDTO> taskDTOs = tasks.stream().map(TaskDTO::new).collect(Collectors.toList());
-        result.setTasks(taskDTOs);
+        List<TaskDTO> taskDTOS = entity.getTasks().stream().map(TaskDTO::new).collect(Collectors.toList());
+        result.setTasks(taskDTOS);
 
         NotificationEvent notificationEvent = new NotificationEvent();
         User user = userService.getUserWithAuthorities().get();
