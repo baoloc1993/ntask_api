@@ -71,7 +71,7 @@ public class EventResource {
         }
         Event event = new Event(eventDto);
         List<Task> tasks = taskRepository.findAllByIdIn(eventDto.getTask());
-        event.setTasks(tasks);
+        event.setTasks(tasks.stream().collect(Collectors.toSet()));
         Event entity = eventRepository.save(event);
         EventDTO result = new EventDTO(entity);
 
@@ -88,7 +88,7 @@ public class EventResource {
             ug.addAll(as);
         }
         userEventRepository.saveAll(ug);
-        List<TaskDTO> taskDTOS = entity.getTasks().stream().map(TaskDTO::new).collect(Collectors.toList());
+        Set<TaskDTO> taskDTOS = entity.getTasks().stream().map(TaskDTO::new).collect(Collectors.toSet());
         result.setTasks(taskDTOS);
 
         NotificationEvent notificationEvent = new NotificationEvent();
