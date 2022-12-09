@@ -76,9 +76,12 @@ public class EventResource {
         ug.add(new UserEvent(authorityRepository.findById(AuthoritiesConstants.ADMIN_ID).orElseThrow(),
                 userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().orElseThrow()).orElseThrow(), entity));
         if(eventDto.getMembers() != null) {
-            Authority authority = authorityRepository.findById(AuthoritiesConstants.USER_ID).orElseThrow();
+
             Set<UserEvent> as = eventDto.getMembers().stream()
-                    .map(ud -> new UserEvent(authority, new User(ud.getId()), entity)).collect(Collectors.toSet());
+                    .map(ud -> {
+                        Authority authority = authorityRepository.findByName(ud.getEventRole().getName()).orElse(null);
+                        return new UserEvent(authority, new User(ud.getId()), entity);
+                    }).collect(Collectors.toSet());
             ug.addAll(as);
         }
         userEventRepository.saveAll(ug);
