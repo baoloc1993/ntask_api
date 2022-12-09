@@ -262,12 +262,14 @@ public class EventResource {
     @GetMapping("/events/{id}")
     public ResponseEntity<EventDTO> getEvent(@PathVariable Long id) {
         log.debug("REST request to get Event : {}", id);
-        Optional<EventDTO> eventDto = eventRepository.findById(id).map(EventDTO::new);
-        for(Long e : eventDto.get().getTask()){
-            Task t = taskRepository.findById(e).get();
-            eventDto.get().getTasks().add(new TaskDTO(t));
+        Event entity = eventRepository.findById(id);
+        if (entity == null){
+            return ResponseUtil.wrapOrNotFound(Optional.empty());
         }
-        return ResponseUtil.wrapOrNotFound(eventDto);
+        EventDTO result = new EventDTO(entity);
+        Set<TaskDTO> taskDTOS = entity.getTasks().stream().map(TaskDTO::new).collect(Collectors.toSet());
+        result.setTasks(taskDTOS);
+        return ResponseUtil.wrapOrNotFound(Optional.of(result));
     }
 
     @GetMapping("/events/user")
