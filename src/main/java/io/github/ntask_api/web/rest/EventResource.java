@@ -85,6 +85,9 @@ public class EventResource {
             ug.addAll(as);
         }
         userEventRepository.saveAll(ug);
+        List<Task> tasks = taskRepository.findAllByIdIn(result.getTask());
+        List<TaskDTO> taskDTOs = tasks.stream().map(TaskDTO::new).collect(Collectors.toList());
+        result.setTasks(taskDTOs);
 
         NotificationEvent notificationEvent = new NotificationEvent();
         User user = userService.getUserWithAuthorities().get();

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -27,5 +28,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     @Query("SELECT DISTINCT t FROM Task t inner  join t.event e where e.id = ?1")
     List<Task> findByEventListId(Long eventId);
+
+    List<Task> findAllByIdIn(Collection<Long> ids);
 
 }
