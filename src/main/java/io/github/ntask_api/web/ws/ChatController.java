@@ -55,4 +55,21 @@ public class ChatController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/sendNotification")
+    public ResponseEntity createNotification(@RequestBody NotificationDTO notificationDTO) {
+        Set<User> users = new HashSet<>(userRepository.findAllById(notificationDTO.getReceivers()));
+        Notice notice = new Notice();
+        notice.setContent(notificationDTO.getDescription());
+        notice.setSubject(notificationDTO.getTitle());
+        Map<String,String> data = new HashMap<>();
+        data.put("createdAt", DateTime.getDefaultInstance().toString());
+        data.put("eventID", String.valueOf(notificationDTO.getEventID()));
+        data.put("taskId", String.valueOf(notificationDTO.getTaskID()));
+        data.put("type", "7");
+        notice.setData(data);
+        notice.setRegistrationTokens(users.stream().map(User::getNotificationKey).collect(Collectors.toList()));
+        notificationService.sendNotification(notice);
+        return ResponseEntity.ok().build();
+    }
+
 }
