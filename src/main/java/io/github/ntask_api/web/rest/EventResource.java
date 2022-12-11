@@ -418,6 +418,6 @@ public class EventResource {
     @GetMapping("/notificationEvent/notRead")
     public Long getNotificationNotRead(){
         User user = userService.getUserWithAuthorities().get();
-        return notificationEventRepository.countNotificationNotRead(user.getId(), false);
+        return notificationEventRepository.countNotificationNotRead(user.getId());
     }
 }

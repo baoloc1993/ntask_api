@@ -20,6 +20,6 @@ public interface NotificationEventRepository extends JpaRepository<NotificationE
     @Query("select n from NotificationEvent  n where n.user.id = ?1")
     public List<NotificationEvent> findListByUserId(Long userId);
 
-    @Query("select count(n.id) from NotificationEvent  n where n.user.id = ?1 and n.readed = ?2")
-    public Long countNotificationNotRead(Long userId, boolean read);
+    @Query("select count(n.id) from NotificationEvent  n where n.user.id = ?1 and n.readed = false ")
+    public Long countNotificationNotRead(Long userId);
 }

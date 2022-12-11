@@ -314,6 +314,6 @@ public class TaskResource {
     @GetMapping("/notificationTask/notRead")
     public Long getNotificationNotRead(){
         User user = userService.getUserWithAuthorities().get();
-        return notificationTaskRepository.countNotificationNotRead(user.getId(), false);
+        return notificationTaskRepository.countNotificationNotRead(user.getId());
     }
 }
