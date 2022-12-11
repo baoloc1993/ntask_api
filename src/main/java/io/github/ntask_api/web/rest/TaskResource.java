@@ -190,7 +190,7 @@ public class TaskResource {
                                 .stream()
                                 .map(u -> new UserTask(null, existingTask, u))
                                 .collect(Collectors.toSet());
-                        String a = taskDto.getAssignees().stream().map(userDTO -> String.valueOf(userDTO.getId())).sorted().collect(Collectors.joining("-"));
+                        String a = existingTask.getUserTask().stream().map(userTask -> String.valueOf(userTask.getUser().getId())).sorted().collect(Collectors.joining("-"));
                         String b = userTasks.stream().map(userDTO -> String.valueOf(userDTO.getId())).sorted().collect(Collectors.joining("-"));
                         if (!a.equals(b)){
                             Notice notice = new Notice();
