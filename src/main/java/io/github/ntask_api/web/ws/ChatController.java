@@ -73,4 +73,9 @@ public class ChatController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/health-check")
+    public String healthCheck() {
+        return "Hello World";
+    }
+
 }
