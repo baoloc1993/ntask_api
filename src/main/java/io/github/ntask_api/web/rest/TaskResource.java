@@ -195,7 +195,7 @@ public class TaskResource {
                         if (!a.equals(b)){
                             Notice notice = new Notice();
                             notice.setContent("Bạn vừa được giao việc " + taskDto.getName());
-                            notice.setSubject("Task " + taskDto.getName() + " updated");
+                            notice.setSubject("Công việc " + taskDto.getName() + " đã được cập nhật");
                             Map<String,String> data = new HashMap<>();
                             data.put("id", String.valueOf(id));
                             data.put("type", "3");

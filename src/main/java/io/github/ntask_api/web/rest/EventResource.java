@@ -69,19 +69,28 @@ public class EventResource {
         if (eventDto.getId() != null) {
             throw new BadRequestAlertException("A new eventDto cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Event entity = eventRepository.save(new Event(eventDto));
+        Event event = new Event(eventDto);
+        Event entity = eventRepository.save(event);
         EventDTO result = new EventDTO(entity);
 
         Set<UserEvent> ug = new HashSet<>();
         ug.add(new UserEvent(authorityRepository.findById(AuthoritiesConstants.ADMIN_ID).orElseThrow(),
                 userRepository.findOneByLogin(SecurityUtils.getCurrentUserLogin().orElseThrow()).orElseThrow(), entity));
         if(eventDto.getMembers() != null) {
-            Authority authority = authorityRepository.findById(AuthoritiesConstants.USER_ID).orElseThrow();
+
             Set<UserEvent> as = eventDto.getMembers().stream()
-                    .map(ud -> new UserEvent(authority, new User(ud.getId()), entity)).collect(Collectors.toSet());
+                    .map(ud -> {
+                        Authority authority = authorityRepository.findByName(ud.getEventRole().getName()).orElse(null);
+                        return new UserEvent(authority, new User(ud.getId()), entity);
+                    }).collect(Collectors.toSet());
             ug.addAll(as);
         }
         userEventRepository.saveAll(ug);
+        List<Task> tasks = taskRepository.findAllByIdIn(eventDto.getTask());
+        tasks.forEach(task -> task.setEvent(entity));
+        taskRepository.saveAll(tasks);
+        Set<TaskDTO> taskDTOS = tasks.stream().map(TaskDTO::new).collect(Collectors.toSet());
+        result.setTasks(taskDTOS);
 
         NotificationEvent notificationEvent = new NotificationEvent();
         User user = userService.getUserWithAuthorities().get();
@@ -254,12 +263,14 @@ public class EventResource {
     @GetMapping("/events/{id}")
     public ResponseEntity<EventDTO> getEvent(@PathVariable Long id) {
         log.debug("REST request to get Event : {}", id);
-        Optional<EventDTO> eventDto = eventRepository.findById(id).map(EventDTO::new);
-        for(Long e : eventDto.get().getTask()){
-            Task t = taskRepository.findById(e).get();
-            eventDto.get().getTasks().add(new TaskDTO(t));
+        Event entity = eventRepository.findById(id).orElse(null);
+        if (entity == null){
+            return ResponseUtil.wrapOrNotFound(Optional.empty());
         }
-        return ResponseUtil.wrapOrNotFound(eventDto);
+        EventDTO result = new EventDTO(entity);
+        Set<TaskDTO> taskDTOS = entity.getTasks().stream().map(TaskDTO::new).collect(Collectors.toSet());
+        result.setTasks(taskDTOS);
+        return ResponseUtil.wrapOrNotFound(Optional.of(result));
     }
 
     @GetMapping("/events/user")
