@@ -26,6 +26,7 @@ public class NotificationTask {
 
     private boolean deleted;
 
+    @Column(name = "deleted_noti")
     private boolean deleted_noti;
 
 
