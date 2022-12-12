@@ -44,6 +44,7 @@ public class NotificationEventResouces {
     public NotificationEvent delete(@RequestParam("id")  Long id){
         NotificationEvent notificationTask = notificationEventRepository.findById(id).get();
         notificationTask.setDeleted_noti(true);
+        notificationTask.setReaded(true);
         notificationTask.setEvent(null);
         return notificationEventRepository.save(notificationTask);
     }
