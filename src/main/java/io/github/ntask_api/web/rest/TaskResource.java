@@ -191,7 +191,7 @@ public class TaskResource {
                                 .stream()
                                 .map(u -> new UserTask(null, existingTask, u))
                                 .collect(Collectors.toSet());
-                        if (Boolean.TRUE.equals(isUpdateMember)){
+                        if (Boolean.TRUE.equals(isUpdateMember) &&  !taskDto.getAssignees().isEmpty()){
                             Notice notice = new Notice();
                             notice.setContent("Bạn vừa được giao việc " + taskDto.getName());
                             notice.setSubject("Công việc " + taskDto.getName() + " đã được cập nhật");
