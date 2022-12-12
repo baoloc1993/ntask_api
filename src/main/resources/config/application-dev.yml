@@ -31,7 +31,7 @@ spring:
     serialization:
       indent-output: true
   datasource:
-    url: jdbc:mysql://185.201.9.216:3306/sql6583987?useLegacyDatetimeCode=false&serverTimezone=UTC
+    url: jdbc:mysql://185.201.9.216:3306/ntask_api?useLegacyDatetimeCode=false&serverTimezone=UTC
     username: ntaskapi
     password: Ntaskapi@123456
     hikari:
