@@ -17,7 +17,7 @@ public interface NotificationEventRepository extends JpaRepository<NotificationE
     @Query("select n from NotificationEvent  n where n.user.id = ?1 and n.deleted_noti = false ")//and deleted = 0
     public Page<NotificationEvent> findByUserId(Long userId, Pageable pageable);
 
-    @Query("select n from NotificationEvent  n where n.user.id = ?1")
+    @Query("select n from NotificationEvent  n where n.user.id = ?1 and n.deleted_noti = false ")
     public List<NotificationEvent> findListByUserId(Long userId);
 
     @Query("select count(n.id) from NotificationEvent  n where n.user.id = ?1 and n.readed = false ")
