@@ -199,8 +199,7 @@ public class TaskResource {
                             Map<String,String> data = new HashMap<>();
                             data.put("id", String.valueOf(id));
                             data.put("type", "3");
-                            data.put("createdAt", DateTime.getDefaultInstance().toString());
-                            notice.setData(data);
+                    notice.setData(data);
                             notice.setRegistrationTokens(userTasks.stream().map(userTask -> userTask.getUser().getNotificationKey()).collect(Collectors.toList()));
                             notificationService.sendNotification(notice);
                         }

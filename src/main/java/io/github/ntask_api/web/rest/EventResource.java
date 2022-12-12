@@ -210,8 +210,7 @@ public class EventResource {
                         notice.setRegistrationTokens(List.of(registrationToken));
                         Map<String,String> data = new HashMap<>();
                         data.put("id", String.valueOf(existingEvent.getId()));
-                        data.put("createdAt", DateTime.getDefaultInstance().toString());
-                        notice.setData(data);
+                notice.setData(data);
                         notificationService.sendNotification(notice);
                     }
                     ug.add(new UserEvent(authorityRepository.findById(AuthoritiesConstants.ADMIN_ID).orElseThrow(),
@@ -373,8 +372,7 @@ public class EventResource {
         Map<String,String> data = new HashMap<>();
         data.put("id", String.valueOf(event.getId()));
         data.put("type", "1");
-        data.put("createdAt", DateTime.getDefaultInstance().toString());
-        notice.setData(data);
+notice.setData(data);
         notificationService.sendNotification(notice);
         return userEvent;
     }
@@ -396,7 +394,6 @@ public class EventResource {
         Map<String,String> data = new HashMap<>();
         data.put("id", String.valueOf(event.getId()));
         data.put("type", "2");
-        data.put("createdAt", DateTime.getDefaultInstance().toString());
         notice.setData(data);
         notificationService.sendNotification(notice);
     }

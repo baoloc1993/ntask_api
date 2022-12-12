@@ -47,8 +47,7 @@ public class ChatController {
         notice.setContent(chatDTO.getDescription());
         notice.setSubject(chatDTO.getTitle());
         Map<String,String> data = new HashMap<>();
-        data.put("createdAt", DateTime.getDefaultInstance().toString());
-        data.put("id", chatDTO.getEventId());
+data.put("id", chatDTO.getEventId());
         data.put("type", "4");
         notice.setData(data);
         notice.setRegistrationTokens(users.stream().map(User::getNotificationKey).collect(Collectors.toList()));
@@ -63,8 +62,7 @@ public class ChatController {
         notice.setContent(notificationDTO.getDescription());
         notice.setSubject(notificationDTO.getTitle());
         Map<String,String> data = new HashMap<>();
-        data.put("createdAt", DateTime.getDefaultInstance().toString());
-        data.put("eventID", String.valueOf(notificationDTO.getEventID()));
+data.put("eventID", String.valueOf(notificationDTO.getEventID()));
         data.put("taskId", String.valueOf(notificationDTO.getTaskID()));
         data.put("type", "7");
         notice.setData(data);
