@@ -51,4 +51,8 @@ public class EventDTO {
         tasks = new HashSet<>();
     }
 
+    public Set<Long> getTask() {
+        if (task == null ) return new HashSet<>();
+        return task;
+    }
 }
