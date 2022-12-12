@@ -22,6 +22,10 @@ public class NotificationEvent {
 
     private boolean deleted;
 
+    private boolean deleted_noti;
+
+
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -31,6 +35,13 @@ public class NotificationEvent {
     private Event event;
 
     public NotificationEvent() {
+    }
+    public boolean isDeleted_noti() {
+        return deleted_noti;
+    }
+
+    public void setDeleted_noti(boolean deleted_noti) {
+        this.deleted_noti = deleted_noti;
     }
 
     public Long getId() {

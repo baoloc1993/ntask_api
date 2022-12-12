@@ -14,7 +14,7 @@ public interface NotificationTaskRepository  extends JpaRepository<NotificationT
     @Query("select n from NotificationTask  n where n.task.id = ?1")
     public List<NotificationTask> findByTaskId(Long taskId);
 
-    @Query("select n from NotificationTask  n where n.user.id = ?1")
+    @Query("select n from NotificationTask  n where n.user.id = ?1 and deleted_noti = 0")
     public Page<NotificationTask> findByUserId(Long userId, Pageable pageable);
 
     @Query("select n from NotificationTask  n where n.user.id = ?1")

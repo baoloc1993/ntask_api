@@ -43,7 +43,7 @@ public class NotificationTaskResouces {
     @PostMapping("/notificationTask/delete")
     public NotificationTask delete(@RequestParam("id")  Long id){
         NotificationTask notificationTask = notificationTaskRepository.findById(id).get();
-        notificationTask.setDeleted(true);
+        notificationTask.setDeleted_noti(true);
         notificationTask.setTask(null);
         notificationTaskRepository.save(notificationTask);
         return notificationTask;

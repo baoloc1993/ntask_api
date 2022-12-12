@@ -26,6 +26,10 @@ public class NotificationTask {
 
     private boolean deleted;
 
+    private boolean deleted_noti;
+
+
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -37,6 +41,13 @@ public class NotificationTask {
 
     public NotificationTask() {
 
+    }
+    public boolean isDeleted_noti() {
+        return deleted_noti;
+    }
+
+    public void setDeleted_noti(boolean deleted_noti) {
+        this.deleted_noti = deleted_noti;
     }
 
     public Long getId() {
