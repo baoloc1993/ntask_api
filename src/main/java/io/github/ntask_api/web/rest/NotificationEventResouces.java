@@ -45,7 +45,6 @@ public class NotificationEventResouces {
         NotificationEvent notificationTask = notificationEventRepository.findById(id).get();
         notificationTask.setDeleted_noti(true);
         notificationTask.setEvent(null);
-        notificationEventRepository.save(notificationTask);
-        return notificationTask;
+        return notificationEventRepository.save(notificationTask);
     }
 }
