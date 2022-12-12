@@ -152,6 +152,7 @@ public class TaskResource {
      */
     @PatchMapping(value = "/tasks/{id}", consumes = {"application/json", "application/merge-patch+json"})
     public ResponseEntity<TaskDTO> partialUpdateTask(@PathVariable(value = "id", required = false) final Long id,
+                                                     @RequestParam(value = "isUpdateMember", required = false) Boolean isUpdateMember,
                                                      @RequestHeader(value = "registrationToken") String registrationToken,
                                                      @RequestBody TaskDTO taskDto)
             throws URISyntaxException {
@@ -190,16 +191,14 @@ public class TaskResource {
                                 .stream()
                                 .map(u -> new UserTask(null, existingTask, u))
                                 .collect(Collectors.toSet());
-                        String a = existingTask.getUserTask().stream().map(userTask -> String.valueOf(userTask.getUser().getId())).sorted().collect(Collectors.joining("-"));
-                        String b = userTasks.stream().map(userDTO -> String.valueOf(userDTO.getId())).sorted().collect(Collectors.joining("-"));
-                        if (!a.equals(b)){
+                        if (Boolean.TRUE.equals(isUpdateMember)){
                             Notice notice = new Notice();
                             notice.setContent("Bạn vừa được giao việc " + taskDto.getName());
                             notice.setSubject("Công việc " + taskDto.getName() + " đã được cập nhật");
                             Map<String,String> data = new HashMap<>();
                             data.put("id", String.valueOf(id));
                             data.put("type", "3");
-                    notice.setData(data);
+                            notice.setData(data);
                             notice.setRegistrationTokens(userTasks.stream().map(userTask -> userTask.getUser().getNotificationKey()).collect(Collectors.toList()));
                             notificationService.sendNotification(notice);
                         }
