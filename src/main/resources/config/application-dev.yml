@@ -31,7 +31,7 @@ spring:
     serialization:
       indent-output: true
   datasource:
-    url: jdbc:mysql://185.201.9.216:3306/ntask_api
+    url: jdbc:mysql://localhost:3306/ntask_api
     username: ntask
     password: Ntaskapi@123456
   jpa:
