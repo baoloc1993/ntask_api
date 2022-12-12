@@ -62,7 +62,7 @@ data.put("id", chatDTO.getEventId());
         notice.setContent(notificationDTO.getDescription());
         notice.setSubject(notificationDTO.getTitle());
         Map<String,String> data = new HashMap<>();
-data.put("eventID", String.valueOf(notificationDTO.getEventID()));
+        data.put("eventID", String.valueOf(notificationDTO.getEventID()));
         data.put("taskId", String.valueOf(notificationDTO.getTaskID()));
         data.put("type", "7");
         notice.setData(data);
