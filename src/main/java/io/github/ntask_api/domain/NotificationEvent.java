@@ -22,6 +22,7 @@ public class NotificationEvent {
 
     private boolean deleted;
 
+    @Column(name = "deleted_noti")
     private boolean deleted_noti;
 
 
