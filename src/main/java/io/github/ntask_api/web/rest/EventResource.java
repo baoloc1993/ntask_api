@@ -81,7 +81,8 @@ public class EventResource {
             Set<UserEvent> as = eventDto.getMembers().stream()
                     .map(ud -> {
                         Authority authority = authorityRepository.findByName(ud.getEventRole().getName()).orElse(null);
-                        return new UserEvent(authority, new User(ud.getId()), entity);
+                        User user = userRepository.findById(ud.getId()).orElse(null);
+                        return new UserEvent(authority, user, entity);
                     }).collect(Collectors.toSet());
             ug.addAll(as);
         }
