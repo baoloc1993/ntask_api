@@ -66,6 +66,15 @@ public class Task extends AbstractAuditingEntity<Long> implements Serializable {
         isShow= taskDto.getIsShow();
     }
 
+    public Task(Task task) {
+        startAt = task.getStartAt();
+        endAt = task.getEndAt();
+        description = task.getDescription();
+        name = task.getName();
+        status = Status.CREATED;
+        isShow= task.getIsShow();
+    }
+
     public Task(Long id) {
         this.id = id;
     }
