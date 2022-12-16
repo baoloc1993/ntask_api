@@ -89,6 +89,7 @@ public class EventResource {
         userEventRepository.saveAll(ug);
         List<Task> newTasks = eventDto.getTask().stream().map(Task::new).collect(Collectors.toList());
         newTasks.forEach(task -> task.setEvent(entity));
+        newTasks.forEach(task -> task.setStatus(Status.CREATED));
         taskRepository.saveAll(newTasks);
         Set<TaskDTO> taskDTOS = newTasks.stream().map(TaskDTO::new).collect(Collectors.toSet());
         result.setTasks(taskDTOS);
