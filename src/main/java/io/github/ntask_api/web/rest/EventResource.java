@@ -87,10 +87,10 @@ public class EventResource {
             ug.addAll(as);
         }
         userEventRepository.saveAll(ug);
-        List<Task> tasks = taskRepository.findAllByIdIn(eventDto.getTask());
-        tasks.forEach(task -> task.setEvent(entity));
-        taskRepository.saveAll(tasks);
-        Set<TaskDTO> taskDTOS = tasks.stream().map(TaskDTO::new).collect(Collectors.toSet());
+        List<Task> newTasks = eventDto.getTask().stream().map(Task::new).collect(Collectors.toList());
+        newTasks.forEach(task -> task.setEvent(entity));
+        taskRepository.saveAll(newTasks);
+        Set<TaskDTO> taskDTOS = newTasks.stream().map(TaskDTO::new).collect(Collectors.toSet());
         result.setTasks(taskDTOS);
 
         NotificationEvent notificationEvent = new NotificationEvent();
