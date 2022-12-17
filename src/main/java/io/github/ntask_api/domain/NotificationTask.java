@@ -1,5 +1,6 @@
 package io.github.ntask_api.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -113,5 +114,12 @@ public class NotificationTask {
 
     public void setTask(Task task) {
         this.task = task;
+    }
+
+    @Transient
+    @JsonProperty("event_id")
+    public Long getEventId(){
+        if (task == null) return null;
+        return task.getEvent().getId();
     }
 }
