@@ -215,4 +215,4 @@ app:
     location: /data
 
 firebase:
-  googleCredentials: src/main/resources/config/cfm/event-management-75fb2-firebase-adminsdk-ayrqq-39aa041a41.json
+  googleCredentials: C:\Users\Username\IdeaProjects\ntask_api\src\main\resources\config\cfm\event-management-75fb2-firebase-adminsdk-ayrqq-39aa041a41.json
